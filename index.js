@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
 
@@ -18,7 +18,7 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollenction = client.db("FridgeInventory").collection("products");
-        
+
         // GET API 
         // http://localhost:5000/products
         app.get('/products', async (req, res) => {
@@ -26,7 +26,30 @@ async function run() {
             const cursor = inventoryCollenction.find(query);
             const products = await cursor.toArray({});
             res.send(products);
+        });
+
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await inventoryCollenction.findOne(query);
+            res.send(result);
         })
+
+        // descresing quantity from  
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    quantity: data.quantity - 1,
+                },
+            };
+            const result = await inventoryCollenction.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+
 
     }
     finally {
