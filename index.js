@@ -35,7 +35,7 @@ async function run() {
             res.send(result);
         })
 
-        // descresing quantity from  
+        // descresing quantity from  inventroy page
         app.put('/product/:id', async (req, res) => {
             const id = req.params.id;
             const data = req.body;
@@ -48,7 +48,24 @@ async function run() {
             };
             const result = await inventoryCollenction.updateOne(filter, updateDoc, options);
             res.send(result);
-        })
+        });
+
+        // insert product api   
+
+        app.post('/insertProduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    // quantity: parseFloat(...data.quantity + data.quantity),
+                    quantity: data.quantity,
+                },
+            };
+            const result = await inventoryCollenction.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
 
 
     }
