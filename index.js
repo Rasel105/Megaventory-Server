@@ -18,6 +18,7 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollenction = client.db("FridgeInventory").collection("products");
+        const delearCollenction = client.db("FridgeInventory").collection("dealers");
 
         // GET API 
         // http://localhost:5000/products
@@ -26,6 +27,13 @@ async function run() {
             const cursor = inventoryCollenction.find(query);
             const products = await cursor.toArray({});
             res.send(products);
+        });
+        // get API For leaders
+        app.get('/dealers', async (req, res) => {
+            const query = {};
+            const cursor = delearCollenction.find(query);
+            const dealers = await cursor.toArray({});
+            res.send(dealers);
         });
 
         app.get('/product/:id', async (req, res) => {
@@ -51,7 +59,7 @@ async function run() {
         });
 
         // Add product API 
-        app.post("/ ", async (req, res) => {
+        app.post("/product", async (req, res) => {
             const newPruduct = req.body;
             const result = await inventoryCollenction.insertOne(newPruduct);
             res.send(result);
