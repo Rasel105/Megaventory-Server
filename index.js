@@ -50,9 +50,15 @@ async function run() {
             res.send(result);
         });
 
-        // insert product api   
+        // Add product API 
+        app.post("/ ", async (req, res) => {
+            const newPruduct = req.body;
+            const result = await inventoryCollenction.insertOne(newPruduct);
+            res.send(result);
+        })
 
-        app.post('/insertProduct/:id', async (req, res) => {
+        // insert product api   
+        app.put('/insertProduct/:id', async (req, res) => {
             const id = req.params.id;
             const data = req.body;
             const filter = { _id: ObjectId(id) };
@@ -60,10 +66,19 @@ async function run() {
             const updateDoc = {
                 $set: {
                     // quantity: parseFloat(...data.quantity + data.quantity),
-                    quantity: data.quantity,
+                    quantity: data.quantity
                 },
             };
             const result = await inventoryCollenction.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+        // DELETE API,
+        // DELETE FROM MANAGE INVENTORY PAGE 
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await inventoryCollenction.deleteOne(query);
             res.send(result);
         });
 
@@ -72,15 +87,16 @@ async function run() {
     finally {
 
     }
-}
+};
+
 run().catch(console.dir)
 app.get('/', (req, res) => {
     res.send("Running Inventory server");
-})
+});
 
 app.listen(port, () => {
     console.log("Listening to port", port);
-})
+});
 
 
 
