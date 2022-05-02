@@ -54,14 +54,20 @@ async function run() {
         });
 
         // GET API FOR THE MY ITEM PAGE 
-        app.get('/myitems', async (req, res) =>{ 
+        app.get('/myitems', async (req, res) => {
             const email = req.query.email;
-            console.log(email);
-            const query = {email: email};
+            const query = { email: email };
             const cursor = inventoryCollenction.find(query);
             const orders = await cursor.toArray();
             res.send(orders);
-        })
+        });
+        // my item delete api 
+        app.delete('/myitem/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await inventoryCollenction.deleteOne(query);
+            res.send(result);
+        });
 
         // descresing quantity from  inventroy page
         app.put('/product/:id', async (req, res) => {
