@@ -19,6 +19,7 @@ async function run() {
         await client.connect();
         const inventoryCollenction = client.db("FridgeInventory").collection("products");
         const delearCollenction = client.db("FridgeInventory").collection("dealers");
+        const transactionsCollenction = client.db("FridgeInventory").collection("recentTransactions");
 
         // GET API 
         // http://localhost:5000/products
@@ -28,6 +29,7 @@ async function run() {
             const products = await cursor.toArray({});
             res.send(products);
         });
+
         // get API For leaders
         app.get('/dealers', async (req, res) => {
             const query = {};
@@ -36,11 +38,29 @@ async function run() {
             res.send(dealers);
         });
 
+        // recent Transaction API 
+        app.get('/transactions', async (req, res) => {
+            const query = {};
+            const cursor = transactionsCollenction.find(query);
+            const transactions = await cursor.toArray({});
+            res.send(transactions);
+        });
+
         app.get('/product/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await inventoryCollenction.findOne(query);
             res.send(result);
+        });
+
+        // GET API FOR THE MY ITEM PAGE 
+        app.get('/myitems', async (req, res) =>{ 
+            const email = req.query.email;
+            console.log(email);
+            const query = {email: email};
+            const cursor = inventoryCollenction.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
         })
 
         // descresing quantity from  inventroy page
@@ -52,6 +72,7 @@ async function run() {
             const updateDoc = {
                 $set: {
                     quantity: data.quantity - 1,
+                    sold: parseInt(data.sold) + 1,
                 },
             };
             const result = await inventoryCollenction.updateOne(filter, updateDoc, options);
@@ -63,7 +84,7 @@ async function run() {
             const newPruduct = req.body;
             const result = await inventoryCollenction.insertOne(newPruduct);
             res.send(result);
-        })
+        });
 
         // insert product api   
         app.put('/insertProduct/:id', async (req, res) => {
@@ -89,7 +110,6 @@ async function run() {
             const result = await inventoryCollenction.deleteOne(query);
             res.send(result);
         });
-
 
     }
     finally {
