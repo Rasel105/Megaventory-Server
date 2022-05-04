@@ -37,6 +37,7 @@ async function run() {
         const inventoryCollenction = client.db("FridgeInventory").collection("products");
         const delearCollenction = client.db("FridgeInventory").collection("dealers");
         const transactionsCollenction = client.db("FridgeInventory").collection("recentTransactions");
+        const blogsCollenction = client.db("FridgeInventory").collection("blogs");
 
 
         // AUTHENTICATOIN WITH JWT 
@@ -150,6 +151,23 @@ async function run() {
             const result = await inventoryCollenction.deleteOne(query);
             res.send(result);
         });
+
+        // POST API FOR BLOGS
+
+        app.post('blog', async (req, res) => {
+            const newBlogs = req.body;
+            const result = await blogsCollenction.insertOne(newBlogs);
+            res.send(result);
+        })
+
+        // GET API FOR BLOGS 
+
+        app.get('/blogs', async (req, res) => {
+            const query = {};
+            const cursor = blogsCollenction.find(query);
+            const blogs = await cursor.toArray();
+            res.send(blogs);
+        })
 
     }
     finally {
