@@ -39,7 +39,6 @@ async function run() {
         const transactionsCollenction = client.db("FridgeInventory").collection("recentTransactions");
         const blogsCollenction = client.db("FridgeInventory").collection("blogs");
 
-
         // AUTHENTICATOIN WITH JWT 
         app.post('/login', async (req, res) => {
             const user = req.body;
@@ -154,9 +153,9 @@ async function run() {
 
         // POST API FOR BLOGS
 
-        app.post('blog', async (req, res) => {
-            const newBlogs = req.body;
-            const result = await blogsCollenction.insertOne(newBlogs);
+        app.post('/blog', async (req, res) => {
+            const newBlog = req.body;
+            const result = await blogsCollenction.insertOne(newBlog);
             res.send(result);
         })
 
