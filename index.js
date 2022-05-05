@@ -9,6 +9,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    console.log(authHeader);
+    if (!authHeader) {
+        return res.status(401).send({ message: "Unauthorized" });
+    }
+    const token = authHeader.split(' ')[1];
+    console.log(token);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: "Forbidden" });
+        }
+        console.log("Decoded", decoded);
+        req.decoded = decoded;
+        next();
+    });
+
+}
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lcyo8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -19,6 +38,16 @@ async function run() {
         const delearCollenction = client.db("FridgeInventory").collection("dealers");
         const transactionsCollenction = client.db("FridgeInventory").collection("recentTransactions");
         const blogsCollenction = client.db("FridgeInventory").collection("blogs");
+
+        // AUTHENTICATOIN WITH JWT 
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1d'
+            });
+            res.send({ accessToken });
+        })
+
 
         // GET API 
         // http://localhost:5000/products
@@ -53,11 +82,18 @@ async function run() {
         });
 
         // GET API FOR THE MY ITEM PAGE 
-        app.get('/myitems', async (req, res) => {
-            const query = { email: email };
-            const cursor = inventoryCollenction.find(query);
-            const items = await cursor.toArray();
-            res.send(items);
+        app.get('/myitems', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const email = req.query.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = inventoryCollenction.find(query);
+                const items = await cursor.toArray();
+                res.send(items);
+            }
+            else {
+                res.status(403).send({ message: 'Forbidded' });
+            }
         });
         // my item delete api 
         app.delete('/myitem/:id', async (req, res) => {
