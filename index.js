@@ -39,13 +39,14 @@ async function run() {
         const transactionsCollenction = client.db("FridgeInventory").collection("recentTransactions");
         const blogsCollenction = client.db("FridgeInventory").collection("blogs");
 
-        // // AUTHENTICATOIN WITH JWT 
+        // AUTHENTICATOIN WITH JWT 
         // app.post('/login', async (req, res) => {
-        //     const user = req.body;
-        //     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        //         expiresIn: '1d'
-        //     });
-        //     res.send({ accessToken });
+            // const email = req.body;
+            // console.log(email)
+            // const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+            //     expiresIn: '1d'
+            // });
+            // res.send({ accessToken });
         // })
 
 
